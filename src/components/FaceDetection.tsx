@@ -59,6 +59,33 @@ export function FaceDetection() {
     scaleStep: 0.25,
   });
 
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const zoomAmount = e.deltaY > 0 ? 0.9 : 1.1;
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      setImageTransform((prev) => ({
+        x: mouseX - (mouseX - prev.x) * zoomAmount,
+        y: mouseY - (mouseY - prev.y) * zoomAmount,
+        scale: prev.scale * zoomAmount,
+      }));
+    };
+
+    canvas.addEventListener("wheel", onWheel, { passive: false });
+
+    return () => {
+      canvas.removeEventListener("wheel", onWheel);
+    };
+  }, [canvasRef, uploadedImage, cameraEnabled, setImageTransform]);
+
   const handleFileClick = () => {
     // Stop camera before opening file picker to prevent mobile browser crash
     if (cameraEnabled) {
@@ -162,23 +189,6 @@ export function FaceDetection() {
     setLastPinchDistance(null);
   };
 
-  const handleWheel = (e: React.WheelEvent<HTMLCanvasElement>) => {
-    if (!cameraEnabled && uploadedImage && canvasRef.current) {
-      e.preventDefault();
-      const zoomAmount = e.deltaY > 0 ? 0.9 : 1.1;
-      const canvas = canvasRef.current;
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-
-      setImageTransform((prev) => ({
-        x: mouseX - (mouseX - prev.x) * zoomAmount,
-        y: mouseY - (mouseY - prev.y) * zoomAmount,
-        scale: prev.scale * zoomAmount,
-      }));
-    }
-  };
-
   // Fullscreen toggle
   const toggleFullscreen = async () => {
     if (!document.fullscreenElement) {
@@ -257,6 +267,7 @@ export function FaceDetection() {
               <CardContent className="p-3 sm:p-4 md:p-6">
                 <div className="relative aspect-video bg-[hsl(var(--ctp-crust))] rounded-lg overflow-hidden border-2 border-[hsl(var(--ctp-surface1))]">
                   <canvas
+                    style={{ touchAction: "none" }}
                     ref={canvasRef}
                     width={1280}
                     height={720}
@@ -265,7 +276,6 @@ export function FaceDetection() {
                     onPointerMove={handlePointerMove}
                     onPointerUp={handlePointerUp}
                     onPointerLeave={handlePointerLeave}
-                    onWheel={handleWheel}
                     onTouchStart={handleTouchStart}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
