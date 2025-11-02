@@ -386,8 +386,8 @@ export function FaceDetection() {
                       className="w-full h-2 bg-[hsl(var(--ctp-surface1))] rounded-lg appearance-none cursor-pointer accent-[hsl(var(--ctp-mauve))]"
                     />
                     <div className="flex justify-between text-xs text-[hsl(var(--ctp-subtext0))]">
-                      <span>More sensitive</span>
                       <span>Less sensitive</span>
+                      <span>More sensitive</span>
                     </div>
                   </div>
                 </div>
