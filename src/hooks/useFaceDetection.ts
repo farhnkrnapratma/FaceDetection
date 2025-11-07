@@ -400,8 +400,17 @@ export function useFaceDetection({
         ctx.fillStyle = '#000000';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Draw video centered and aspect-ratio preserved
-        ctx.drawImage(video, offsetX, offsetY, drawWidth, drawHeight);
+        // Save context state before transformation
+        ctx.save();
+
+        // Flip horizontally to mirror the video
+        ctx.scale(-1, 1);
+
+        // Draw video centered and aspect-ratio preserved (negated x-position due to flip)
+        ctx.drawImage(video, -offsetX - drawWidth, offsetY, drawWidth, drawHeight);
+
+        // Restore context state
+        ctx.restore();
       }
     } else if (uploadedImage) {
       const transform = imageTransformRef.current;
